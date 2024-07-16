@@ -13,14 +13,11 @@ def test_encrypt_data(mock_generate_proof, mock_file):
 @patch("builtins.open", new_callable=mock_open)
 @patch("storage.encryption.zkp.verify", return_value=True)
 def test_decrypt_data(mock_verify, mock_file):
-    encrypted_data = {
-        'salt': '1234567890abcdef1234567890abcdef',
-        'nonce': '1234567890abcdef1234567890abcdef',
-        'tag': '1234567890abcdef1234567890abcdef',
-        'proof': 'mock_proof',
-        'ciphertext': '1234567890abcdef'
-    }
-    encrypted_data_str = json.dumps(encrypted_data)
+    # First, encrypt the data to get a consistent encrypted data structure
+    with patch("builtins.open", new_callable=mock_open, read_data=b"mock_data"):
+        encrypted_data_str = encrypt_data("test_file.txt")
+
+    # Now, decrypt the data using the same structure
     decrypt_data(encrypted_data_str, "output_file.txt")
     mock_verify.assert_called_once_with("mock_data")
 

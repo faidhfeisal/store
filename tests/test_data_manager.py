@@ -1,5 +1,6 @@
 import pytest
-from unittest.mock import patch, mock_open
+import os
+from unittest.mock import patch, mock_open, MagicMock
 from storage.data_manager import store_data, retrieve_data, delete_data
 
 @pytest.fixture
@@ -38,11 +39,25 @@ def test_retrieve_data(mock_pinata, mock_encryption):
     mock_decrypt.assert_called_once_with("encrypted_data", "output_file.txt")
     assert result == {"success": True}
 
-def test_delete_data(mock_pinata):
-    _, _, mock_unpin = mock_pinata
-    mock_unpin.return_value = "mock_response"
+@patch.dict(os.environ, {"PINATA_API_URL": "https://mock.pinata.cloud", "PINATA_API_KEY": "test_key"})
+@patch('requests.delete')
+def test_delete_data(mock_delete):
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {"response": "mock_response"}
+    mock_delete.return_value = mock_response
     
+    print("Mock PINATA_API_URL:", os.getenv("PINATA_API_URL"))  # Debug print to verify environment variable
+    print("Mock PINATA_API_KEY:", os.getenv("PINATA_API_KEY"))  # Debug print to verify environment variable
+
     result = delete_data("mock_ipfs_hash")
     
-    mock_unpin.assert_called_once_with("mock_ipfs_hash")
-    assert result == {"success": True, "response": "mock_response"}
+    mock_delete.assert_called_once_with(
+        "https://mock.pinata.cloud/pinning/unpin/mock_ipfs_hash",
+        headers={
+            "Authorization": "Bearer test_key",
+            "Content-Type": "application/json"
+        }
+    )
+    print("Delete data result:", result)  # Debug print to verify the result
+    assert result == {"success": True, "response": {"response": "mock_response"}}
