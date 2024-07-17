@@ -57,6 +57,8 @@ def decrypt_data(encrypted_data, output_path):
     with open(output_path, 'wb') as file:
         file.write(data)
 
+    return data
+
 async def encrypt_data_streaming(file_object):
     salt = get_random_bytes(SALT_SIZE)
     password = b"secure_password"  # Replace with a secure password or key management system

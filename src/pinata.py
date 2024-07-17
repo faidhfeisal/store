@@ -1,4 +1,5 @@
 import requests
+import json
 from dotenv import load_dotenv
 import os
 from config import PINATA_API_URL, PINATA_API_KEY, PINATA_SECRET_API_KEY
@@ -32,17 +33,42 @@ def upload_to_pinata(file_content, file_name):
 
 def download_from_pinata(ipfs_hash):
     url = f'https://gateway.pinata.cloud/ipfs/{ipfs_hash}'
-    response = requests.get(url)
-    response.raise_for_status()
-    return response.content
+    try:
+        response = requests.get(url)
+        logger.info(f"Pinata response status: {response.status_code}")
+        logger.info(f"Pinata response: {response}")
+        response.raise_for_status()
+        content = response.content
+        if content is None or len(content) == 0:
+            logger.error("Received empty content from Pinata")
+            raise ValueError("Received empty content from Pinata")
+        logger.info(f"Downloaded content length: {len(content)}")
+        
+        # Decode the content and parse it as JSON
+        content_json = json.loads(content.decode('utf-8'))
+        logger.info(f"Parsed JSON content: {content_json}")
+        
+        return content_json
+    except json.JSONDecodeError as e:
+        logger.error(f"Error decoding JSON from Pinata: {str(e)}")
+        raise
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error downloading from Pinata: {str(e)}")
+        raise
 
 def unpin_from_pinata(ipfs_hash):
     headers = {
-        "Authorization": f"Bearer {PINATA_API_KEY}",
-        "Content-Type": "application/json"
+        "pinata_api_key": PINATA_API_KEY,
+        "pinata_secret_api_key": PINATA_SECRET_API_KEY
     }
     url = f'{PINATA_API_URL}/pinning/unpin/{ipfs_hash}'
-    logger.debug(f"Unpin URL: {url}")  # Debug print to verify the URL
-    response = requests.delete(url, headers=headers)
-    response.raise_for_status()
-    return response.json()
+    logger.info(f"Unpin URL: {url}")
+    
+    try:
+        response = requests.delete(url, headers=headers)
+        response.raise_for_status()  # This will raise an exception for HTTP errors
+        logger.info(f"Successfully unpinned {ipfs_hash}")
+        return {"success": True, "message": f"Successfully unpinned {ipfs_hash}"}
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error unpinning from Pinata: {str(e)}")
+        return {"success": False, "error": str(e)}
