@@ -52,6 +52,7 @@ async def retrieve_data(ipfs_hash: str):
     except Exception as e:
         logger.error(f"Error in retrieve_data: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+    
 
 async def delete_data(ipfs_hash: str):
     try:
