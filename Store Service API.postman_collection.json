@@ -1,0 +1,95 @@
+{
+	"info": {
+		"_postman_id": "1b1d5534-2e85-4c30-8db0-78aeef5e15d2",
+		"name": "Store Service API",
+		"description": "Postman collection for the Data Manager API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "37088089"
+	},
+	"item": [
+		{
+			"name": "Store Data",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "multipart/form-data"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"value": "",
+							"type": "file"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/store",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"store"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Retrieve Data",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"ipfs_hash\": \"YourIpfsHash\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/retrieve",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"retrieve"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Data",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"ipfs_hash\": \"YourIpfsHash\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/delete",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"delete"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
